@@ -8,16 +8,15 @@ import (
 )
 
 var (
-	endpoint     = os.Getenv("endpoint")
-	accessKey    = os.Getenv("accessKey")
-	accessSecret = os.Getenv("accessSecret")
-	bucket       = os.Getenv("bucket")
-	uploader     *AliOssStore
+	bucket   = os.Getenv("bucket")
+	uploader *AliOssStore
 )
 
 func TestUpload(t *testing.T) {
 	// 获取一个断言实例
 	should := assert.New(t)
+
+	should.Equal(bucket, "appchain-production")
 
 	err := uploader.Upload(bucket, "store.go", "store.go")
 	if should.NoError(err) {
@@ -34,7 +33,7 @@ func TestUploadError(t *testing.T) {
 }
 
 func init() {
-	ossStore, err := NewAliOssStore(endpoint, accessKey, accessSecret)
+	ossStore, err := NewDefaultAliOssStore()
 	if err != nil {
 		panic(err)
 	}

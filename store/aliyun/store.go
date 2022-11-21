@@ -2,12 +2,34 @@ package aliyun
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 )
 
+type Options struct {
+	Endpoint     string
+	AccessKey    string
+	AccessSecret string
+}
+
+func (o *Options) Validate() error {
+	if o.Endpoint == "" || o.AccessKey == "" || o.AccessSecret == "" {
+		return fmt.Errorf("endpoint, access_key access_secret has one empty")
+	}
+	return nil
+}
+
 type AliOssStore struct {
 	client *oss.Client
+}
+
+func NewDefaultAliOssStore() (*AliOssStore, error) {
+	return NewAliOssStore(&Options{
+		Endpoint:     os.Getenv("endpoint"),
+		AccessKey:    os.Getenv("accessKey"),
+		AccessSecret: os.Getenv("accessSecret"),
+	})
 }
 
 func (s *AliOssStore) Upload(bucketName string, objectKey string, fileName string) error {
@@ -30,8 +52,11 @@ func (s *AliOssStore) Upload(bucketName string, objectKey string, fileName strin
 	return nil
 }
 
-func NewAliOssStore(endpoint, accessKey, accessSecret string) (*AliOssStore, error) {
-	client, err := oss.New(endpoint, accessKey, accessSecret)
+func NewAliOssStore(opts *Options) (*AliOssStore, error) {
+	if err := opts.Validate(); err != nil {
+		return nil, err
+	}
+	client, err := oss.New(opts.Endpoint, opts.AccessKey, opts.AccessSecret)
 	if err != nil {
 		return nil, err
 	}
