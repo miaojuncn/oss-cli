@@ -5,19 +5,21 @@ import (
 	"os"
 
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
+	"github.com/go-playground/validator"
+)
+
+var (
+	validate = validator.New()
 )
 
 type Options struct {
-	Endpoint     string
-	AccessKey    string
-	AccessSecret string
+	Endpoint     string `validate:"required"`
+	AccessKey    string `validate:"required"`
+	AccessSecret string `validate:"required"`
 }
 
 func (o *Options) Validate() error {
-	if o.Endpoint == "" || o.AccessKey == "" || o.AccessSecret == "" {
-		return fmt.Errorf("endpoint, access_key access_secret has one empty")
-	}
-	return nil
+	return validate.Struct(o)
 }
 
 type AliOssStore struct {
@@ -32,8 +34,19 @@ func NewDefaultAliOssStore() (*AliOssStore, error) {
 	})
 }
 
-func (s *AliOssStore) Upload(bucketName string, objectKey string, fileName string) error {
+func (s *AliOssStore) GetBucket(bucketName string) (*oss.Bucket, error) {
+	if bucketName == "" {
+		return nil, fmt.Errorf("upload bucket name required")
+	}
 	bucket, err := s.client.Bucket(bucketName)
+	if err != nil {
+		return nil, err
+	}
+	return bucket, nil
+}
+
+func (s *AliOssStore) Upload(bucketName string, objectKey string, fileName string) error {
+	bucket, err := s.GetBucket(bucketName)
 	if err != nil {
 		return err
 	}
