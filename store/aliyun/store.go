@@ -23,7 +23,8 @@ func (o *Options) Validate() error {
 }
 
 type AliOssStore struct {
-	client *oss.Client
+	client   *oss.Client
+	listener *OssProgressListener
 }
 
 func NewDefaultAliOssStore() (*AliOssStore, error) {
@@ -51,7 +52,7 @@ func (s *AliOssStore) Upload(bucketName string, objectKey string, fileName strin
 		return
 	}
 
-	if err = bucket.PutObjectFromFile(objectKey, fileName); err != nil {
+	if err = bucket.PutObjectFromFile(objectKey, fileName, oss.Progress(&OssProgressListener{})); err != nil {
 		return
 	}
 	// 打印下载链接
@@ -70,5 +71,5 @@ func NewAliOssStore(opts *Options) (*AliOssStore, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &AliOssStore{client: client}, nil
+	return &AliOssStore{client: client, listener: NewOssProgressListener()}, nil
 }
