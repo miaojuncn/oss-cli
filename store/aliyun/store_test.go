@@ -18,7 +18,7 @@ func TestUpload(t *testing.T) {
 
 	should.Equal(bucket, "appchain-production")
 
-	err := uploader.Upload(bucket, "store.go", "store.go")
+	_, err := uploader.Upload(bucket, "store.go", "store.go")
 	if should.NoError(err) {
 		// 	没有错误, 开启下一个步骤
 		t.Log("upload ok")
@@ -28,7 +28,7 @@ func TestUpload(t *testing.T) {
 func TestUploadError(t *testing.T) {
 	should := assert.New(t)
 
-	err := uploader.Upload(bucket, "store.go", "store_xxx.go")
+	_, err := uploader.Upload(bucket, "store.go", "store_xxx.go")
 	should.Error(err, "open store_xxx.go: The system cannot find the file specified.")
 }
 

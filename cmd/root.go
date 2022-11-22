@@ -7,11 +7,11 @@ import (
 )
 
 var (
-	ossProvider     string
-	version         bool
-	ossEndpoint     string
-	aliAccessKey    string
-	aliAccessSecret string
+	ossProvider  string
+	version      bool
+	ossEndpoint  string
+	accessKey    string
+	accessSecret string
 )
 
 var RootCmd = &cobra.Command{
@@ -29,4 +29,7 @@ var RootCmd = &cobra.Command{
 func init() {
 	f := RootCmd.PersistentFlags()
 	f.BoolVarP(&version, "version", "v", false, "oss-cli version")
+	f.StringVarP(&ossProvider, "provider", "p", "aliyun", "oss provider")
+	f.StringVarP(&ossEndpoint, "endpoint", "e", "", "oss endpoint")
+	f.StringVarP(&accessKey, "key", "k", "", "oss key")
 }

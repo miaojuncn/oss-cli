@@ -45,24 +45,21 @@ func (s *AliOssStore) GetBucket(bucketName string) (*oss.Bucket, error) {
 	return bucket, nil
 }
 
-func (s *AliOssStore) Upload(bucketName string, objectKey string, fileName string) error {
+func (s *AliOssStore) Upload(bucketName string, objectKey string, fileName string) (downloadUrl string, err error) {
 	bucket, err := s.GetBucket(bucketName)
 	if err != nil {
-		return err
+		return
 	}
 
-	if err := bucket.PutObjectFromFile(objectKey, fileName); err != nil {
-		return err
+	if err = bucket.PutObjectFromFile(objectKey, fileName); err != nil {
+		return
 	}
-
 	// 打印下载链接
-	downloadURL, err := bucket.SignURL(objectKey, oss.HTTPGet, 60*60*24)
+	downloadUrl, err = bucket.SignURL(objectKey, oss.HTTPGet, 60*60*24)
 	if err != nil {
-		return err
+		return
 	}
-	fmt.Printf("文件下载URL: %s \n", downloadURL)
-	fmt.Println("请在1天之内下载.")
-	return nil
+	return downloadUrl, nil
 }
 
 func NewAliOssStore(opts *Options) (*AliOssStore, error) {
